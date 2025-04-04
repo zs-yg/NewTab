@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增强版新标签页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        /* 搜索框样式 */
+        .search-engine {
+            margin-bottom: 1.5rem;
+            padding: 0.8rem 1.2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            width: 100%;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-engine:focus {
+            border-color: #0078d4;
+            box-shadow: 0 0 8px rgba(0, 120, 212, 0.2);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #0078d4;
+            box-shadow: 0 0 8px rgba(0, 120, 212, 0.2);
+        }
+
+        .search-button {
+            padding: 1rem 2rem;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-button:hover {
+            background: #106ebe;
+        }
+
+        /* 网盘菜单样式 */
+        .pan-button {
+            position: fixed;
+            right: 20px;
+            bottom: 40%;
+            background: #0078d4;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .pan-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        .pan-menu {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            padding: 1rem;
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            min-width: 200px;
+            max-height: 70vh;
+            overflow-y: auto;
+            z-index: 101;
+        }
+
+        .pan-menu.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pan-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .pan-menu::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .pan-menu::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .pan-menu::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .pan-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 4px 0;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .pan-item:hover {
+            background: #f5f5f5;
+        }
+
+        .pan-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+        }
+
+        .pan-category {
+            color: #666;
+            font-size: 0.9em;
+            padding: 8px 12px;
+            margin: 10px 0 5px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: white;
+            backdrop-filter: blur(5px);
+            z-index: 1;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .pan-button {
+                right: 15px;
+                bottom: 20px;
+                width: 45px;
+                height: 45px;
+            }
+            
+            .pan-menu {
+                right: 15px;
+                left: 15px;
+                bottom: 80px;
+                max-height: 60vh;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .search-button {
+                width: 100%;
+            }
+
+            .site-footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.9);
+                padding: 12px 50px 8px;
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+                z-index: 999;
+                backdrop-filter: blur(5px);
+            }
+
+            .footer-content {
+                max-width: 1200px;
+                margin: 0 auto;
+                text-align: center;
+                font-size: 14px;
+                color: #666;
+            }
+
+            .bilibili-link {
+                color: #00a1d6;
+                text-decoration: none;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                position: relative;
+                padding: 0 4px;
+            }
+
+            .bilibili-link:hover {
+                color: #ffffff;
+                background: #00a1d6;
+                border-radius: 3px;
+            }
+
+            .bilibili-link::after {
+                content: "➚";
+                font-size: 0.8em;
+                margin-left: 2px;
+                position: absolute;
+                top: -2px;
+            }
+
+            @media (max-width: 768px) {
+                .site-footer {
+                    padding: 8px 10px 4px;
+                }
+                
+                .footer-content {
+                    font-size: 12px;
+                }
+                
+                .bilibili-link::after {
+                    display: none;
+                }
+            }
+
+            .site-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 12px 20px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    backdrop-filter: blur(5px);
+}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <select class="search-engine" id="engine">
+            <optgroup label="常用搜索">
+                <option value="https://www.google.com/search?q=">Google</option>
+                <option value="https://www.bing.com/search?q=">Bing</option>
+                <option value="https://www.baidu.com/s?wd=">百度</option>
+            </optgroup>
+            <optgroup label="其他搜索">
+                <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+                <option value="https://search.yahoo.com/search?p=">Yahoo</option>
+                <option value="https://github.com/search?q=">GitHub</option>
+                <option value="https://scholar.google.com/scholar?q=">Google Scholar</option>
+            </optgroup>
+        </select>
+        
+        <div class="search-box">
+            <input type="text" class="search-input" id="search" placeholder="输入搜索内容..." autofocus>
+            <button class="search-button" onclick="performSearch()">搜索</button>
+        </div>
+    </div>
+
+    <!-- 网盘菜单 -->
+    <div class="pan-button" onclick="togglePanMenu()">☁</div>
+    <div class="pan-menu" id="panMenu">
+        <div class="pan-category">国内网盘</div>
+        <a href="https://pan.baidu.com" class="pan-item" target="_blank">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAvklEQVRIS2NkoDFgpLH5DMSrV6/+DxXCC0BqQGpB+rA1wDUfPHgQbgBMEKQYpBGkGZ9mkBqQWpA+rBqQDQDxQQaADIEJgjTDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAMghTM0wjLs0ww7fswDIAbADIIEzNMI24NMMM37IDywCwASCDMDXDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAAHvRFdGqgCqAAAAAAElFTkSuQmCC" class="pan-icon">
+            百度网盘
+        </a>
+        <a href="https://www.aliyundrive.com" class="pan-item" target="_blank">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAh0lEQVRIS2NkoDFgpLH5DMSrV6/+DxXCC0BqQGpB+rA1wDQfPHgQbgBMEKQYpBGkGZ9mkBqQWpA+rBqQDQDxQQaADIEJgjTDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAMghTM0wjLs0ww7fswDIAbADIIEzNMI24NMMM37IDywCwASCDMDXDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAAHvRFdGqgCqAAAAAAElFTkSuQmCC" class="pan-icon">
+            阿里云盘
+        </a>
+        <a href="https://cloud.189.cn" class="pan-item" target="_blank">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAwElEQVRIS2NkoDFgpLH5DMSrV6/+DxXCC0BqQGpB+rA1wDQfPHgQbgBMEKQYpBGkGZ9mkBqQWpA+rBqQDQDxQQaADIEJgjTDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAMghTM0wjLs0ww7fswDIAbADIIEzNMI24NMMM37IDywCwASCDMDXDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAAHvRFdGqgCqAAAAAAElFTkSuQmCC" class="pan-icon">
+            天翼云盘
+        </a>
+        <a href="https://www.123pan.com" class="pan-item" target="_blank">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAvklEQVRIS2NkoDFgpLH5DMSrV6/+DxXCC0BqQGpB+rA1wDQfPHgQbgBMEKQYpBGkGZ9mkBqQWpA+rBqQDQDxQQaADIEJgjTDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAMghTM0wjLs0ww7fswDIAbADIIEzNMI24NMMM37IDywCwASCDMDXDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAAHvRFdGqgCqAAAAAAElFTkSuQmCC" class="pan-icon">
+            123云盘
+        </a>
+
+        <div class="pan-category">国际网盘</div>
+        <a href="https://drive.google.com" class="pan-item" target="_blank">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAA9klEQVRIS2NkoDFgpLH5DMSrV6/+DxXCC0BqQGpB+rA1wDQfPHgQbgBMEKQYpBGkGZ9mkBqQWpA+rBqQDQDxQQaADIEJgjTDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAMghTM0wjLs0ww7fswDIAbADIIEzNMI24NMMM37IDywCwASCDMDXDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAAHvRFdGqgCqAAAAAAElFTkSuQmCC" class="pan-icon">
+            Google Drive
+        </a>
+        <a href="https://www.dropbox.com" class="pan-item" target="_blank">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAA00lEQVRIS2NkoDFgpLH5DMSrV6/+DxXCC0BqQGpB+rA1wDQfPHgQbgBMEKQYpBGkGZ9mkBqQWpA+rBqQDQDxQQaADIEJgjTDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAMghTM0wjLs0ww7fswDIAbADIIEzNMI24NMMM37IDywCwASCDMDXDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAAHvRFdGqgCqAAAAAAElFTkSuQmCC" class="pan-icon">
+            Dropbox
+        </a>
+        <a href="https://onedrive.live.com" class="pan-item" target="_blank">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAvklEQVRIS2NkoDFgpLH5DMSrV6/+DxXCC0BqQGpB+rA1wDQfPHgQbgBMEKQYpBGkGZ9mkBqQWpA+rBqQDQDxQQaADIEJgjTDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAMghTM0wjLs0ww7fswDIAbADIIEzNMI24NMMM37IDywCwASCDMDXDNOLSDDN8yw4sA8AGgAzC1AzTiEszzPAtO7AMABsAAHvRFdGqgCqAAAAAAElFTkSuQmCC" class="pan-icon">
+            OneDrive
+        </a>
+    </div>
+
+    <script>
+        // 搜索功能
+        function performSearch() {
+            const engine = document.getElementById('engine').value;
+            const query = document.getElementById('search').value.trim();
+            if (query) {
+                window.location.href = engine + encodeURIComponent(query);
+            }
+        }
+
+        // 回车搜索
+        document.getElementById('search').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // 网盘菜单控制
+        function togglePanMenu() {
+            const menu = document.getElementById('panMenu');
+            menu.classList.toggle('show');
+            menu.style.maxHeight = `calc(${window.innerHeight * 0.7}px - 2rem)`;
+        }
+
+        // 点击外部关闭菜单
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('panMenu');
+            if (!event.target.closest('.pan-button') && !event.target.closest('.pan-menu')) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // 窗口大小调整时更新菜单高度
+        window.addEventListener('resize', () => {
+            const menu = document.getElementById('panMenu');
+            if (menu.classList.contains('show')) {
+                menu.style.maxHeight = `calc(${window.innerHeight * 0.7}px - 2rem)`;
+            }
+        });
+
+        // 记忆搜索引擎
+        window.addEventListener('load', () => {
+            const savedEngine = localStorage.getItem('selectedEngine');
+            if (savedEngine) {
+                document.getElementById('engine').value = savedEngine;
+            }
+        });
+
+        document.getElementById('engine').addEventListener('change', function() {
+            localStorage.setItem('selectedEngine', this.value);
+        });
+    </script>
+<footer class="site-footer">
+    <div class="footer-content">
+        <p>本网站由
+            <a href="https://space.bilibili.com/1698250734" 
+               target="_blank" 
+               class="bilibili-link">
+                B站UP主 —— zs月光
+            </a>
+            搭建
+        </p>
+    </div>
+</footer>
+</body>
+</html>
